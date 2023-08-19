@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: task_calendar
+dependency_overrides:
+  task_calendar:
+    path: ..
