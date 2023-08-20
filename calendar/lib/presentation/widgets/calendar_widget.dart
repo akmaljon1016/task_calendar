@@ -12,12 +12,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarWidget extends StatefulWidget {
-  const CalendarWidget({super.key});
+  final CombinedModel? combinedModel;
+  final Function(DateTime? date, int? type) onDateClickedCallBack;
 
-  static Widget screen() {
+  const CalendarWidget(
+      {super.key, this.combinedModel, required this.onDateClickedCallBack});
+
+  static Widget screen(CombinedModel combinedModel,
+      Function(DateTime? date, int? type) onDateClickedCallBack) {
     return BlocProvider<CalendarBloc>(
       create: (context) => di<CalendarBloc>(),
-      child: CalendarWidget(),
+      child: CalendarWidget(
+        combinedModel: combinedModel,
+        onDateClickedCallBack: onDateClickedCallBack,
+      ),
     );
   }
 
@@ -66,10 +74,6 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     _currentDateTime = DateTime(date.year, date.month);
     _selectedDateTime = DateTime(date.year, date.month, date.day);
     calendarBloc = BlocProvider.of<CalendarBloc>(context);
-    dayModel = DayModel(
-        month: "8",
-        year: 2023,
-        days: [Days(day: 1, type: 200), Days(day: 30, type: 400)]);
     midYear = date.year;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setState(() => _getCalendar());
@@ -79,62 +83,16 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CalendarBloc, CalendarState>(
-      listener: (context, state) {
-        if (state is CalendarSuccess) {
-          print("result1: ${state.combinedModel.dayModel}");
-          print("result2:${state.combinedModel.dayColors}");
-        }
-      },
-      builder: (context, state) {
-        if (state is CalendarLoading) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                  color: Colors.grey,
-                  height: 100,
-                  width: 100,
-                  child: CupertinoActivityIndicator(
-                    radius: 20,
-                  )),
-              Container(
-                  margin: EdgeInsets.all(16),
-                  padding: EdgeInsets.all(16),
-                  alignment: Alignment.center,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: (_currentView == CalendarViews.dates)
-                      ? _datesView()
-                      : (_currentView == CalendarViews.months)
-                          ? _showMonthsList()
-                          : _yearsView(midYear ?? _currentDateTime.year))
-            ],
-          );
-        } else if (state is CalendarSuccess) {
-          return Container(
-              margin: EdgeInsets.all(16),
-              padding: EdgeInsets.all(16),
-              alignment: Alignment.center,
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: (_currentView == CalendarViews.dates)
-                  ? _datesView(state.combinedModel)
-                  : (_currentView == CalendarViews.months)
-                      ? _showMonthsList()
-                      : _yearsView(midYear ?? _currentDateTime.year));
-        } else {
-          return Container(
-              margin: EdgeInsets.all(16),
-              padding: EdgeInsets.all(16),
-              alignment: Alignment.center,
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: (_currentView == CalendarViews.dates)
-                  ? _datesView()
-                  : (_currentView == CalendarViews.months)
-                      ? _showMonthsList()
-                      : _yearsView(midYear ?? _currentDateTime.year));
-        }
-      },
-    );
+    return Container(
+        margin: EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
+        alignment: Alignment.center,
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: (_currentView == CalendarViews.dates)
+            ? _datesView(widget.combinedModel)
+            : (_currentView == CalendarViews.months)
+                ? _showMonthsList()
+                : _yearsView(midYear ?? _currentDateTime.year));
   }
 
   Widget _datesView([CombinedModel? combinedModel]) {
@@ -183,7 +141,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   Widget _toggleBtn(bool next) {
     return InkWell(
       onTap: () {
-        calendarBloc.add(LoadCalendarEvent());
+        // calendarBloc.add(LoadCalendarEvent());
         if (_currentView == CalendarViews.dates) {
           setState(() => (next) ? _getNextMonth() : _getPrevMonth());
         } else if (_currentView == CalendarViews.year) {
@@ -230,7 +188,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         itemBuilder: (context, index) {
           if (index < 7) return _weekDayTitle(index);
           if (_sequentialDates[index - 7].date == _selectedDateTime)
-            return _selector(_sequentialDates[index - 7], dayModel);
+            return _selector(_sequentialDates[index - 7],
+                combinedModel?.dayColors, combinedModel?.dayModel);
           return _calendarDates(_sequentialDates[index - 7],
               combinedModel?.dayModel, combinedModel?.dayColors);
         },
@@ -269,26 +228,13 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     final bool isThisMonth = calendarDate.thisMonth;
     final bool isSunday = calendarDate.date.weekday == DateTime.sunday;
 
-    Color getCircleAvatarBackgroundColor() {
-      if (dayModel?.month == calendarDate.date.month.toString()) {
-        for (var element in dayModel?.days ?? []) {
-          if (element.day == calendarDate.date.day) {
-            for (var element1 in dayColors ?? []) {
-              if (element1.type == element.type) {
-                print(element1.color);
-                return HexColor.fromHex(element1.color ?? "FFFFFF");
-              }
-            }
-          }
-        }
-      }
-      return Colors.transparent;
-    }
+    getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors);
 
     void handleDateTap() {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Calendar")));
-
+      if (getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors) !=
+          null) {
+        widget.onDateClickedCallBack(calendarDate.date,dayModel?.days?[0].type);
+      }
       if (_selectedDateTime != calendarDate.date) {
         if (calendarDate.nextMonth) {
           _getNextMonth();
@@ -302,9 +248,13 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     return Visibility(
       visible: isThisMonth,
       child: InkWell(
-        onTap: handleDateTap,
+        onTap: () {
+          handleDateTap();
+        },
         child: CircleAvatar(
-          backgroundColor: getCircleAvatarBackgroundColor(),
+          backgroundColor: getCircleAvatarBackgroundColor(
+                  calendarDate, dayModel, dayColors) ??
+              Colors.transparent,
           child: Center(
             child: Text(
               '${calendarDate.date.day}',
@@ -322,14 +272,34 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     );
   }
 
-  Widget _selector(Calendar calendarDate, [DayModel? dayModel]) {
+  Color? getCircleAvatarBackgroundColor(
+      Calendar calendarDate, DayModel? dayModel, List<DayColor>? dayColors) {
+    if (dayModel?.month == calendarDate.date.month.toString()) {
+      for (var element in dayModel?.days ?? []) {
+        if (element.day == calendarDate.date.day) {
+          for (var element1 in dayColors ?? []) {
+            if (element1.type == element.type) {
+              print(element1.color);
+              return HexColor.fromHex(element1.color ?? "FFFFFF");
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  Widget _selector(Calendar calendarDate, List<DayColor>? dayColors,
+      [DayModel? dayModel]) {
     return Container(
       width: 30,
       height: 30,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.9),
-        border: Border.all(color: Colors.white, width: 4),
+        color:
+            getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors) ??
+                Colors.transparent,
+        border: Border.all(color: Colors.black, width: 4),
       ),
       child: Center(
         child: Text(

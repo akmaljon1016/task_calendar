@@ -24,7 +24,7 @@ class CalendarSuccess extends CalendarState {
 }
 
 class CalendarFailure extends CalendarState {
-  final String message;
+  final dynamic message;
 
   const CalendarFailure({required this.message});
 

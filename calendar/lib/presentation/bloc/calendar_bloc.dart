@@ -24,8 +24,12 @@ class CalendarBloc extends Bloc<CalendarEvent, CalendarState> {
     final value = switch (result) {
       Success(value: final combined) =>
         emit(CalendarSuccess(combinedModel: combined)),
-      Failure(exception: final exception) =>
-        emit(CalendarFailure(message: exception.toString()))
+      Failure(exception: final exception) => {
+          if (exception is CalendarException)
+            {emit(CalendarFailure(message: exception.message))}
+          else if (exception is NoInternetException)
+            {emit(CalendarFailure(message: exception.message))}
+        }
     };
   }
 }

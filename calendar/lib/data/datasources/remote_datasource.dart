@@ -1,5 +1,6 @@
 import 'package:calendar/core/di/dependency_injection.dart';
 import 'package:calendar/core/network/network_info.dart';
+import 'package:calendar/core/network/result.dart';
 import 'package:calendar/core/util/api_constants.dart';
 import 'package:calendar/data/model/combined_model.dart';
 import 'package:calendar/data/model/day_color.dart';
@@ -30,13 +31,13 @@ class RemoteDataSourceImpl extends RemoteDataSource {
               CombinedModel(dayModel: dayModel, dayColors: dayColors);
           return combinedModel;
         } else {
-          throw Exception("Server Error");
+          throw CalendarException(message: "Server Error");
         }
       } on DioException catch (e) {
-        throw Exception(e);
+        throw CalendarException(message: e.toString());
       }
     } else {
-      throw Exception("Internet yo'q");
+      throw NoInternetException(message: "Internet yo'q");
     }
   }
 }

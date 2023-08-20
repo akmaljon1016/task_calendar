@@ -1,5 +1,6 @@
 import 'package:calendar/core/network/network_info.dart';
 import 'package:calendar/core/network/result.dart';
+import 'package:calendar/core/util/app_constants.dart';
 import 'package:calendar/data/datasources/local_datasource.dart';
 import 'package:calendar/data/datasources/remote_datasource.dart';
 import 'package:calendar/data/model/combined_model.dart';
@@ -21,11 +22,11 @@ class RepositoryImpl extends Repository {
       try {
         var response = await remoteDataSourceImpl.loadColorsAndDays();
         return Success(response);
-      } on Exception catch (e) {
-        return Failure(Exception(e));
+      } on CalendarException catch (e) {
+        return Failure(CalendarException(message: e.message));
       }
     } else {
-      return Failure(Exception("Internet yo'q"));
+      return Failure(NoInternetException(message: "Internet yo'q"));
     }
   }
 }
