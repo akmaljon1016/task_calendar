@@ -2,6 +2,7 @@ import 'package:calendar/core/di/dependency_injection.dart';
 import 'package:calendar/core/function/function.dart';
 import 'package:calendar/core/logic/calendar.dart';
 import 'package:calendar/core/util/app_constants.dart';
+import 'package:calendar/data/model/callback_model.dart';
 import 'package:calendar/data/model/combined_model.dart';
 import 'package:calendar/data/model/day_color.dart';
 import 'package:calendar/data/model/day_model.dart';
@@ -13,13 +14,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CalendarWidget extends StatefulWidget {
   final CombinedModel? combinedModel;
-  final Function(DateTime? date, int? type) onDateClickedCallBack;
+  final Function(CallBackModel? callBackModel) onDateClickedCallBack;
 
   const CalendarWidget(
       {super.key, this.combinedModel, required this.onDateClickedCallBack});
 
   static Widget screen(CombinedModel combinedModel,
-      Function(DateTime? date, int? type) onDateClickedCallBack) {
+      Function(CallBackModel? callBackModel) onDateClickedCallBack) {
     return BlocProvider<CalendarBloc>(
       create: (context) => di<CalendarBloc>(),
       child: CalendarWidget(
@@ -231,15 +232,17 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors);
 
     void handleDateTap() {
-      if (getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors) !=
-          null) {
-        widget.onDateClickedCallBack(calendarDate.date,dayModel?.days?[0].type);
-      }
       if (_selectedDateTime != calendarDate.date) {
         if (calendarDate.nextMonth) {
           _getNextMonth();
         } else if (calendarDate.prevMonth) {
           _getPrevMonth();
+        }
+
+        if (getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors) !=
+            null) {
+          widget.onDateClickedCallBack(getCircleAvatarBackgroundColor(
+              calendarDate, dayModel, dayColors));
         }
         setState(() => _selectedDateTime = calendarDate.date);
       }
@@ -252,9 +255,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           handleDateTap();
         },
         child: CircleAvatar(
-          backgroundColor: getCircleAvatarBackgroundColor(
-                  calendarDate, dayModel, dayColors) ??
-              Colors.transparent,
+          backgroundColor:
+              getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors)
+                      ?.color ??
+                  Colors.transparent,
           child: Center(
             child: Text(
               '${calendarDate.date.day}',
@@ -272,15 +276,16 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     );
   }
 
-  Color? getCircleAvatarBackgroundColor(
+  CallBackModel? getCircleAvatarBackgroundColor(
       Calendar calendarDate, DayModel? dayModel, List<DayColor>? dayColors) {
     if (dayModel?.month == calendarDate.date.month.toString()) {
       for (var element in dayModel?.days ?? []) {
         if (element.day == calendarDate.date.day) {
           for (var element1 in dayColors ?? []) {
             if (element1.type == element.type) {
-              print(element1.color);
-              return HexColor.fromHex(element1.color ?? "FFFFFF");
+              return CallBackModel(
+                  color: HexColor.fromHex(element1.color ?? "FFFFFF"),
+                  type: element1.type);
             }
           }
         }
@@ -296,9 +301,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       height: 30,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color:
-            getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors) ??
-                Colors.transparent,
+        color: getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors)
+                ?.color ??
+            Colors.transparent,
         border: Border.all(color: Colors.black, width: 4),
       ),
       child: Center(
@@ -378,7 +383,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                   style: TextStyle(
                       fontSize: 18,
                       color: (index == _currentDateTime.month - 1)
-                          ? Colors.yellow
+                          ? Colors.green
                           : Colors.black),
                 ),
               ),
@@ -402,7 +407,6 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         ),
         Expanded(
           child: Container(
-            color: Colors.grey,
             alignment: Alignment.center,
             child: GridView.builder(
                 padding: EdgeInsets.only(left: 30),
@@ -433,7 +437,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                       style: TextStyle(
                           fontSize: 18,
                           color: (thisYear == _currentDateTime.year)
-                              ? Colors.yellow
+                              ? Colors.green
                               : Colors.black),
                     ),
                   );

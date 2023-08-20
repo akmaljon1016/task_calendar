@@ -1,4 +1,5 @@
 import 'package:calendar/core/di/dependency_injection.dart';
+import 'package:calendar/data/model/callback_model.dart';
 import 'package:calendar/presentation/bloc/calendar_bloc.dart';
 import 'package:calendar/presentation/widgets/calendar_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,7 +47,9 @@ class _CalendarPageState extends State<CalendarPage> {
         if (state is CalendarLoading) {
           return Column(
             children: [
-              CalendarWidget(),
+              CalendarWidget(
+                onDateClickedCallBack: (CallBackModel? callBackModel) {},
+              ),
               SizedBox(
                 height: 20,
               ),
@@ -57,11 +60,20 @@ class _CalendarPageState extends State<CalendarPage> {
         } else if (state is CalendarSuccess) {
           return CalendarWidget(
             combinedModel: state.combinedModel,
+            onDateClickedCallBack: (CallBackModel? callBackModel) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(callBackModel.toString())));
+            },
           );
         } else if (state is CalendarFailure) {
           return Column(
             children: [
-              const CalendarWidget(),
+              CalendarWidget(
+                onDateClickedCallBack: (CallBackModel? callBackModel) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(callBackModel.toString())));
+                },
+              ),
               Text("${state.message}"),
               MaterialButton(
                 onPressed: () {
@@ -75,11 +87,15 @@ class _CalendarPageState extends State<CalendarPage> {
               )
             ],
           );
-        }
-        else{
+        } else {
           return Column(
             children: [
-              const CalendarWidget(),
+              CalendarWidget(
+                onDateClickedCallBack: (CallBackModel? callBackModel) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(callBackModel.toString())));
+                },
+              ),
               Text("Noma'lum xatolik sodir bo'ldi"),
               MaterialButton(
                 onPressed: () {
