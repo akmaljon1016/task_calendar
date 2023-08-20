@@ -6,9 +6,7 @@ import 'package:calendar/data/model/callback_model.dart';
 import 'package:calendar/data/model/combined_model.dart';
 import 'package:calendar/data/model/day_color.dart';
 import 'package:calendar/data/model/day_model.dart';
-import 'package:calendar/data/model/days.dart';
 import 'package:calendar/presentation/bloc/calendar_bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -93,7 +91,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             ? _datesView(widget.combinedModel)
             : (_currentView == CalendarViews.months)
                 ? _showMonthsList()
-                : _yearsView(midYear ?? _currentDateTime.year));
+                : _yearsView(midYear));
   }
 
   Widget _datesView([CombinedModel? combinedModel]) {
@@ -147,11 +145,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           setState(() => (next) ? _getNextMonth() : _getPrevMonth());
         } else if (_currentView == CalendarViews.year) {
           if (next) {
-            midYear =
-                (midYear == null) ? _currentDateTime.year + 9 : midYear + 9;
+            midYear = midYear + 9;
           } else {
-            midYear =
-                (midYear == null) ? _currentDateTime.year - 9 : midYear - 9;
+            midYear = midYear - 9;
           }
           setState(() {});
         }
@@ -174,28 +170,25 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
 // calendar
   Widget _calendarBody(CombinedModel? combinedModel) {
-    if (_sequentialDates == null) {
-      return Container();
-    } else {
-      return GridView.builder(
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        itemCount: _sequentialDates.length + 7,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          mainAxisSpacing: 10,
-          crossAxisCount: 7,
-          crossAxisSpacing: 10,
-        ),
-        itemBuilder: (context, index) {
-          if (index < 7) return _weekDayTitle(index);
-          if (_sequentialDates[index - 7].date == _selectedDateTime)
-            return _selector(_sequentialDates[index - 7],
-                combinedModel?.dayColors, combinedModel?.dayModel);
-          return _calendarDates(_sequentialDates[index - 7],
-              combinedModel?.dayModel, combinedModel?.dayColors);
-        },
-      );
-    }
+    return GridView.builder(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      itemCount: _sequentialDates.length + 7,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        mainAxisSpacing: 10,
+        crossAxisCount: 7,
+        crossAxisSpacing: 10,
+      ),
+      itemBuilder: (context, index) {
+        if (index < 7) return _weekDayTitle(index);
+        if (_sequentialDates[index - 7].date == _selectedDateTime)
+          return _selector(_sequentialDates[index - 7],
+              combinedModel?.dayColors, combinedModel?.dayModel);
+        return _calendarDates(_sequentialDates[index - 7],
+            combinedModel?.dayModel, combinedModel?.dayColors);
+      },
+    );
+
   }
 
 // calendar header
@@ -278,7 +271,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   CallBackModel? getCircleAvatarBackgroundColor(
       Calendar calendarDate, DayModel? dayModel, List<DayColor>? dayColors) {
-    if (dayModel?.month == calendarDate.date.month.toString()) {
+    if (dayModel?.month == calendarDate.date.month.toString()&&calendarDate.date.year==dayModel?.year) {
       for (var element in dayModel?.days ?? []) {
         if (element.day == calendarDate.date.day) {
           for (var element1 in dayColors ?? []) {
@@ -296,22 +289,25 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   Widget _selector(Calendar calendarDate, List<DayColor>? dayColors,
       [DayModel? dayModel]) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors)
-                ?.color ??
-            Colors.transparent,
-        border: Border.all(color: Colors.black, width: 4),
-      ),
-      child: Center(
-        child: Text(
-          '${calendarDate.date.day}',
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w700,
+    return Visibility(
+      visible: calendarDate.thisMonth,
+      child: Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors)
+                  ?.color ??
+              Colors.transparent,
+          border: Border.all(color: Colors.black, width: 4),
+        ),
+        child: Center(
+          child: Text(
+            '${calendarDate.date.day}',
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
