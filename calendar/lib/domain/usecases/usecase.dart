@@ -10,8 +10,10 @@ class CalendarUseCase extends UseCase<CombinedModel, UseCaseParams> {
 
   @override
   Future<Result<CombinedModel, Exception>> call(UseCaseParams params) async {
-    return repository.loadColorsAndDays();
+    return await repository.loadColorsAndDays();
   }
 }
 
-class UseCaseParams {}
+class UseCaseParams {
+  ///this created and putted empty if some thing to add to params
+}

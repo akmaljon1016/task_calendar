@@ -1,3 +1,5 @@
 enum StartWeekDay { sunday, monday }
 
-enum Status { online, offline }
+const String loading = "Ma'lumotlar yuklanmoqda";
+const String reloading = "Qayta Yuklash";
+const String unKnownError = "Noma'lum xatolik sodir bo'ldi";

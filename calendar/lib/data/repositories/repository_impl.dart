@@ -1,19 +1,15 @@
 import 'package:calendar/core/network/network_info.dart';
 import 'package:calendar/core/network/result.dart';
-import 'package:calendar/core/util/app_constants.dart';
-import 'package:calendar/data/datasources/local_datasource.dart';
 import 'package:calendar/data/datasources/remote_datasource.dart';
 import 'package:calendar/data/model/combined_model.dart';
 import 'package:calendar/domain/repositories/repository.dart';
 
 class RepositoryImpl extends Repository {
   final RemoteDataSourceImpl remoteDataSourceImpl;
-  final LocalDataSourceImpl localDataSourceImpl;
   final NetworkInfo networkInfo;
 
   RepositoryImpl(
       {required this.remoteDataSourceImpl,
-      required this.localDataSourceImpl,
       required this.networkInfo});
 
   @override

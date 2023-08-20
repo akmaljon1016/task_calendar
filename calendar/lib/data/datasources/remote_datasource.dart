@@ -21,8 +21,8 @@ class RemoteDataSourceImpl extends RemoteDataSource {
   Future<CombinedModel> loadColorsAndDays() async {
     if (await networkInfo.isConnected) {
       try {
-        var responseDays = await dio.get(baseUrl + dayApiPath);
-        var responseColors = await dio.get(baseUrl + colorApiPath);
+        var responseDays = await dio.get(dayApiPath);
+        var responseColors = await dio.get(colorApiPath);
         if (responseDays.statusCode == 200 &&
             responseColors.statusCode == 200) {
           DayModel dayModel = DayModel.fromJson(responseDays.data);

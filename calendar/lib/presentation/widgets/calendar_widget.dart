@@ -9,6 +9,7 @@ import 'package:calendar/data/model/day_model.dart';
 import 'package:calendar/presentation/bloc/calendar_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CalendarWidget extends StatefulWidget {
   final CombinedModel? combinedModel;
@@ -83,8 +84,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.all(16),
-        padding: EdgeInsets.all(16),
+        margin: EdgeInsets.symmetric(horizontal: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         alignment: Alignment.center,
         height: MediaQuery.of(context).size.height * 0.6,
         child: (_currentView == CalendarViews.dates)
@@ -123,13 +124,13 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           ],
         ),
         SizedBox(
-          height: 20,
+          height: 2.h,
         ),
         Divider(
-          color: Colors.white,
+          color: Colors.black,
         ),
         SizedBox(
-          height: 20,
+          height: 10.h,
         ),
         Flexible(child: _calendarBody(combinedModel)),
       ],
@@ -154,10 +155,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       },
       child: Container(
         alignment: Alignment.center,
-        width: 50,
-        height: 50,
+        width: 50.w,
+        height: 50.w,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(25.r),
           border: Border.all(color: Colors.transparent),
         ),
         child: Icon(
@@ -175,9 +176,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       padding: EdgeInsets.zero,
       itemCount: _sequentialDates.length + 7,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        mainAxisSpacing: 10,
+        mainAxisSpacing: 10.w,
         crossAxisCount: 7,
-        crossAxisSpacing: 10,
+        crossAxisSpacing: 10.w,
       ),
       itemBuilder: (context, index) {
         if (index < 7) return _weekDayTitle(index);
@@ -188,17 +189,16 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             combinedModel?.dayModel, combinedModel?.dayColors);
       },
     );
-
   }
 
 // calendar header
   Widget _weekDayTitle(int index) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4),
+      padding: EdgeInsets.only(left: 6.w),
       child: Text(
         _weekDays[index],
         style: TextStyle(
-            color: index == 6 ? Colors.red : Colors.black, fontSize: 16),
+            color: index == 6 ? Colors.red : Colors.black, fontSize: 10.sp),
       ),
     );
   }
@@ -271,7 +271,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   CallBackModel? getCircleAvatarBackgroundColor(
       Calendar calendarDate, DayModel? dayModel, List<DayColor>? dayColors) {
-    if (dayModel?.month == calendarDate.date.month.toString()&&calendarDate.date.year==dayModel?.year) {
+    if (dayModel?.month == calendarDate.date.month.toString() &&
+        calendarDate.date.year == dayModel?.year) {
       for (var element in dayModel?.days ?? []) {
         if (element.day == calendarDate.date.day) {
           for (var element1 in dayColors ?? []) {
@@ -292,14 +293,15 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     return Visibility(
       visible: calendarDate.thisMonth,
       child: Container(
-        width: 30,
-        height: 30,
+        width: 30.w,
+        height: 30.w,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors)
-                  ?.color ??
-              Colors.transparent,
-          border: Border.all(color: Colors.black, width: 4),
+          color:
+              getCircleAvatarBackgroundColor(calendarDate, dayModel, dayColors)
+                      ?.color ??
+                  Colors.transparent,
+          border: Border.all(color: Colors.black, width: 2.w),
         ),
         child: Center(
           child: Text(
@@ -350,11 +352,11 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         InkWell(
           onTap: () => setState(() => _currentView = CalendarViews.year),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(20.0.w),
             child: Text(
               '${_currentDateTime.year}',
               style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.black),
             ),
@@ -377,7 +379,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                 child: Text(
                   _monthNames[index],
                   style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       color: (index == _currentDateTime.month - 1)
                           ? Colors.green
                           : Colors.black),
@@ -405,7 +407,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           child: Container(
             alignment: Alignment.center,
             child: GridView.builder(
-                padding: EdgeInsets.only(left: 30),
+                padding: EdgeInsets.only(left: 30.w),
                 shrinkWrap: true,
                 itemCount: 9,
                 physics: NeverScrollableScrollPhysics(),
@@ -431,7 +433,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                     title: Text(
                       '$thisYear',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           color: (thisYear == _currentDateTime.year)
                               ? Colors.green
                               : Colors.black),

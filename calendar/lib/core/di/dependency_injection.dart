@@ -1,6 +1,6 @@
 import 'package:calendar/core/network/app_interceptor.dart';
 import 'package:calendar/core/network/network_info.dart';
-import 'package:calendar/data/datasources/local_datasource.dart';
+import 'package:calendar/core/util/api_constants.dart';
 import 'package:calendar/data/datasources/remote_datasource.dart';
 import 'package:calendar/data/repositories/repository_impl.dart';
 import 'package:calendar/domain/repositories/repository.dart';
@@ -13,7 +13,13 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 final di = GetIt.instance;
 
 Future<void> init() async {
-  final Dio dio = Dio();
+
+  BaseOptions options = new BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: Duration(milliseconds: 15000),
+    receiveTimeout: Duration(milliseconds: 15000),
+  );
+  final Dio dio = Dio(options);
   dio.interceptors.add(AppInterceptor());
   di.registerLazySingleton<Dio>(() => dio);
 
@@ -23,11 +29,9 @@ Future<void> init() async {
 
   di.registerLazySingleton(
       () => RemoteDataSourceImpl(dio: di(), networkInfo: di()));
-  di.registerLazySingleton(() => LocalDataSourceImpl());
 
   di.registerLazySingleton<Repository>(() => RepositoryImpl(
       remoteDataSourceImpl: di(),
-      localDataSourceImpl: di(),
       networkInfo: di()));
   di.registerLazySingleton(() => CalendarUseCase(repository: di()));
   di.registerFactory(() => CalendarBloc(calendarUseCase: di()));
