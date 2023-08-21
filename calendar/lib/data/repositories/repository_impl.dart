@@ -1,5 +1,6 @@
 import 'package:calendar/core/network/network_info.dart';
 import 'package:calendar/core/network/result.dart';
+import 'package:calendar/core/util/app_constants.dart';
 import 'package:calendar/data/datasources/remote_datasource.dart';
 import 'package:calendar/data/model/combined_model.dart';
 import 'package:calendar/domain/repositories/repository.dart';
@@ -22,7 +23,7 @@ class RepositoryImpl extends Repository {
         return Failure(CalendarException(message: e.message));
       }
     } else {
-      return Failure(NoInternetException(message: "Internet yo'q"));
+      return Failure(NoInternetException(message: noInternetError));
     }
   }
 }
