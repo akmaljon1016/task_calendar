@@ -36,7 +36,9 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: RefreshIndicator(
-      onRefresh: () async {},
+      onRefresh: () async {
+        calendarBloc.add(LoadCalendarEvent());
+      },
       child: BlocConsumer<CalendarBloc, CalendarState>(
         listener: (context, state) {
           if (state is CalendarSuccess) {
@@ -95,7 +97,12 @@ class _CalendarPageState extends State<CalendarPage> {
                       onPressed: () {
                         calendarBloc.add(LoadCalendarEvent());
                       },
-                      icon: Icon(Icons.refresh,color: Colors.blue,weight: 30.w,size: 40.w,),
+                      icon: Icon(
+                        Icons.refresh,
+                        color: Colors.blue,
+                        weight: 30.w,
+                        size: 40.w,
+                      ),
                     ),
                   )
                 ],
@@ -115,7 +122,11 @@ class _CalendarPageState extends State<CalendarPage> {
                   height: 90.h,
                   child: Column(
                     children: [
-                      Text("${state.message}",style: TextStyle(fontSize: 18.sp,fontWeight: FontWeight.w500),),
+                      Text(
+                        "${state.message}",
+                        style: TextStyle(
+                            fontSize: 18.sp, fontWeight: FontWeight.w500),
+                      ),
                       MaterialButton(
                         onPressed: () {
                           calendarBloc.add(LoadCalendarEvent());
